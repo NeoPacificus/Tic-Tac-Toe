@@ -90,20 +90,27 @@ else:
         toss_loser = player_one
 
 print("Since {toss_winner} has won the toss, {toss_loser} will choose either \"X\" or \"O\" symbol to play with".format(toss_winner = toss_winner, toss_loser = toss_loser))
-while True:
-    try:
-        second_symbol = input("{toss_loser}, please choose the symbol!\n".format(toss_loser = toss_loser)).strip().upper()
-        if second_symbol == "X":
-            first_symbol = "O"
-            print("{toss_loser} chooses \"X\". {toss_winner} will start with  \"O\"!".format(toss_loser = toss_loser, toss_winner = toss_winner))
-        elif second_symbol == "O":
-            first_symbol = "X"
-            print("{toss_loser} chooses \"O\". {toss_winner} will start with  \"X\"!".format(toss_loser = toss_loser, toss_winner = toss_winner))
-        else:
-            raise InvalidInputException
-        break
-    except InvalidInputException:
-        print("Invalid Input")
+if toss_loser == "Computer":
+    second_symbol = r.choice(["X", "O"])
+    if second_symbol == "X":
+        first_symbol = "O"
+    else:
+        first_symbol = "X"
+else:
+    while True:
+        try:
+            second_symbol = input("{toss_loser}, please choose the symbol!\n".format(toss_loser = toss_loser)).strip().upper()
+            if second_symbol == "X":
+                first_symbol = "O"
+                print("{toss_loser} chooses \"X\". {toss_winner} will start with  \"O\"!".format(toss_loser = toss_loser, toss_winner = toss_winner))
+            elif second_symbol == "O":
+                first_symbol = "X"
+                print("{toss_loser} chooses \"O\". {toss_winner} will start with  \"X\"!".format(toss_loser = toss_loser, toss_winner = toss_winner))
+            else:
+                raise InvalidInputException
+            break
+        except InvalidInputException:
+            print("Invalid Input")
 
 print("Let us finally start the game!\n {toss_winner}, please play the first move by entering the co-ordinate where you want to place {first_symbol}".format(toss_winner = toss_winner, first_symbol = first_symbol))
 
@@ -112,8 +119,20 @@ place_tracker = {
         "O" : []
         }
 winning_combinations = [(1,2,3), (4,5,6), (7,8,9), (1,4,7), (2,5,8), (3,6,9), (1,5,9), (3,5,7)]
+num_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 for i in range(0,9):
-    if i % 2 == 0:
+    if toss_winner == "Computer" and i % 2 == 0:
+        cardinal_board()
+        place = r.choice(num_list)
+        progress_board(int(place), first_symbol)
+        place_tracker[first_symbol].append(int(place))
+        num_list.remove(int(place))
+        print("{toss_winner} placed {first_symbol} at position {place}\n".format(toss_winner = toss_winner, first_symbol = first_symbol, place = place))
+        if i >= 4 and any(all(x in place_tracker[first_symbol] for x in t) for t in winning_combinations):
+            result = toss_winner
+            print("{first_symbol} is aligned for a winning combination. {toss_winner} wins the game!".format(first_symbol = first_symbol, toss_winner = toss_winner))
+            break
+    elif toss_winner != "Computer" and i % 2 == 0:
         cardinal_board()
         while True:
             try:
@@ -125,10 +144,24 @@ for i in range(0,9):
                 print("Place already occupied by one of the symbols. Enter unoccupied co-ordinate")
         progress_board(int(place), first_symbol)
         place_tracker[first_symbol].append(int(place))
+        num_list.remove(int(place))
+        print("{toss_winner} placed {first_symbol} at position {place}\n".format(toss_winner = toss_winner, first_symbol = first_symbol, place = place))
         if i >= 4 and any(all(x in place_tracker[first_symbol] for x in t) for t in winning_combinations):
             result = toss_winner
             print("{first_symbol} is aligned for a winning combination. {toss_winner} wins the game!".format(first_symbol = first_symbol, toss_winner = toss_winner))
             break
+    elif toss_loser == "Computer" and i % 2 != 0:
+        cardinal_board()
+        place = r.choice(num_list)
+        progress_board(int(place), second_symbol)
+        place_tracker[second_symbol].append(int(place))
+        num_list.remove(int(place))
+        print("{toss_loser} placed {second_symbol} at position {place}\n".format(toss_loser = toss_loser, second_symbol = second_symbol, place = place))
+        if i >= 4 and any(all(x in place_tracker[second_symbol] for x in t) for t in winning_combinations):
+            result = toss_loser
+            print("{second_symbol} is aligned for a winning combination. {toss_loser} wins the game!".format(second_symbol = second_symbol, toss_loser = toss_loser))
+            break
+
     else:
         cardinal_board()
         while True:
@@ -141,6 +174,8 @@ for i in range(0,9):
                 print("Place already occupied by one of the symbols. Enter unoccupied co-ordinate")
         progress_board(int(place), second_symbol)
         place_tracker[second_symbol].append(int(place))
+        num_list.remove(int(place))
+        print("{toss_loser} placed {second_symbol} at position {place}\n".format(toss_loser = toss_loser, second_symbol = second_symbol, place = place))
         if i >= 4 and any(all(x in place_tracker[second_symbol] for x in t) for t in winning_combinations):
             result = toss_loser
             print("{second_symbol} is aligned for a winning combination. {toss_loser} wins the game!".format(second_symbol = second_symbol, toss_loser = toss_loser))
