@@ -2,6 +2,8 @@ import random as r
 
 class InvalidInputException(Exception):
     pass
+class IndexBoundsException(Exception):
+    pass
 
 def cardinal_board():
     row_one = [[1],[2],[3]]
@@ -40,17 +42,23 @@ while True:
     except InvalidInputException:
         print("Invalid Input")
 
-
-player_one = input("Enter Player-1 name: ")
+while True:
+    try:
+        player_one = input("Enter Player-1 name: ")
+        if player_one == "Computer":
+            raise InvalidInputException
+        break
+    except InvalidInputException:
+        print("Player's name cannot be named as \"Computer\"")
 if game_type == "b":
     while True:
         try:
             player_two = input("Enter Player-2 name: ")
-            if player_two == player_one:
+            if player_two == player_one or player_two == "Computer":
                 raise InvalidInputException
             break
         except InvalidInputException:
-            print("Player's names cannot be same. \nPlease enter a different name for Player-2")
+            print("Player\'s names cannot be same or be named as \"Computer\". \nPlease enter a different name for Player-2")
 
 print("Let us start the game\nWho wants to go first? Let us decide by Toss!\n{player_one} calls the toss".format(player_one = player_one))
 
@@ -113,7 +121,7 @@ else:
             print("Invalid Input")
 
 print("Let us finally start the game!\n {toss_winner}, please play the first move by entering the co-ordinate where you want to place {first_symbol}".format(toss_winner = toss_winner, first_symbol = first_symbol))
-
+result = "equal"
 place_tracker = {
         "X" : [],
         "O" : []
@@ -130,25 +138,29 @@ for i in range(0,9):
         print("{toss_winner} placed {first_symbol} at position {place}\n".format(toss_winner = toss_winner, first_symbol = first_symbol, place = place))
         if i >= 4 and any(all(x in place_tracker[first_symbol] for x in t) for t in winning_combinations):
             result = toss_winner
-            print("{first_symbol} is aligned for a winning combination. {toss_winner} wins the game!".format(first_symbol = first_symbol, toss_winner = toss_winner))
+            print("{first_symbol} is aligned for a winning combination. {toss_winner} wins the game!\n".format(first_symbol = first_symbol, toss_winner = toss_winner))
             break
     elif toss_winner != "Computer" and i % 2 == 0:
         cardinal_board()
         while True:
             try:
                 place = input("{toss_winner}'s turn:\n".format(toss_winner = toss_winner))
-                if int(place) in place_tracker.values():
+                if not place.isdigit() or int(place) not in range(1,10):
+                    raise IndexBoundsException
+                if any(int(place) in moves for moves in place_tracker.values()):
                     raise InvalidInputException
                 break
+            except IndexBoundsException:
+                print("Please enter valid position within the board\n")
             except InvalidInputException:
-                print("Place already occupied by one of the symbols. Enter unoccupied co-ordinate")
+                print("Place already occupied by one of the symbols. Enter unoccupied co-ordinate\n")
         progress_board(int(place), first_symbol)
         place_tracker[first_symbol].append(int(place))
         num_list.remove(int(place))
         print("{toss_winner} placed {first_symbol} at position {place}\n".format(toss_winner = toss_winner, first_symbol = first_symbol, place = place))
         if i >= 4 and any(all(x in place_tracker[first_symbol] for x in t) for t in winning_combinations):
             result = toss_winner
-            print("{first_symbol} is aligned for a winning combination. {toss_winner} wins the game!".format(first_symbol = first_symbol, toss_winner = toss_winner))
+            print("{first_symbol} is aligned for a winning combination. {toss_winner} wins the game!\n".format(first_symbol = first_symbol, toss_winner = toss_winner))
             break
     elif toss_loser == "Computer" and i % 2 != 0:
         cardinal_board()
@@ -159,7 +171,7 @@ for i in range(0,9):
         print("{toss_loser} placed {second_symbol} at position {place}\n".format(toss_loser = toss_loser, second_symbol = second_symbol, place = place))
         if i >= 4 and any(all(x in place_tracker[second_symbol] for x in t) for t in winning_combinations):
             result = toss_loser
-            print("{second_symbol} is aligned for a winning combination. {toss_loser} wins the game!".format(second_symbol = second_symbol, toss_loser = toss_loser))
+            print("{second_symbol} is aligned for a winning combination. {toss_loser} wins the game!\n".format(second_symbol = second_symbol, toss_loser = toss_loser))
             break
 
     else:
@@ -167,19 +179,26 @@ for i in range(0,9):
         while True:
             try:
                 place = input("{toss_loser}'s turn:\n".format(toss_loser = toss_loser))
-                if int(place) in place_tracker.values():
+                if not place.isdigit() or int(place) not in range(1,10):
+                    raise IndexBoundsException
+                if any(int(place) in moves for moves in place_tracker.values()):
                     raise InvalidInputException
                 break
+            except IndexBoundsException:
+                print("Please enter valid position within the board\n")
             except InvalidInputException:
-                print("Place already occupied by one of the symbols. Enter unoccupied co-ordinate")
+                print("Place already occupied by one of the symbols. Enter unoccupied co-ordinate\n")
         progress_board(int(place), second_symbol)
         place_tracker[second_symbol].append(int(place))
         num_list.remove(int(place))
         print("{toss_loser} placed {second_symbol} at position {place}\n".format(toss_loser = toss_loser, second_symbol = second_symbol, place = place))
         if i >= 4 and any(all(x in place_tracker[second_symbol] for x in t) for t in winning_combinations):
             result = toss_loser
-            print("{second_symbol} is aligned for a winning combination. {toss_loser} wins the game!".format(second_symbol = second_symbol, toss_loser = toss_loser))
+            print("{second_symbol} is aligned for a winning combination. {toss_loser} wins the game!\n".format(second_symbol = second_symbol, toss_loser = toss_loser))
             break
+
+if result == "equal":
+    print("Its a draw!\nRun Game.py to restart the game\n")
 
 
 
